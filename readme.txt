@@ -10,3 +10,4 @@ Download from http://gradle.org/
 :: Build
 Build: gradle build
 Test: gradle test
+Generate eclipse project: gradle eclipse
