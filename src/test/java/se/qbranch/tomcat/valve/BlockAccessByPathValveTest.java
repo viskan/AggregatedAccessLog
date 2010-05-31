@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
+import org.apache.catalina.Valve;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -35,7 +36,7 @@ import static junit.framework.Assert.*;
 public class BlockAccessByPathValveTest {
 	
 	private BlockAccessByPathValve allowLocalhostValve;
-	private BlockAccessByPathValve deny81NetValve;
+	private BlockAccessByPathValve denyLocalhostValve;
 	private InvokedValve invokedValve;
 	private Request req;
 	private Response resp;
@@ -43,51 +44,51 @@ public class BlockAccessByPathValveTest {
 	@Before
 	public void setup() {
 		allowLocalhostValve = new BlockAccessByPathValve();
-		deny81NetValve = new BlockAccessByPathValve();
+		denyLocalhostValve = new BlockAccessByPathValve();
 		invokedValve = new InvokedValve();
 		
 		allowLocalhostValve.setNext(invokedValve);
 		allowLocalhostValve.setPath("/probe/.*,/manager/.*");
 		allowLocalhostValve.setAllow("127\\.0\\.0\\.1");
 		
-		deny81NetValve.setNext(invokedValve);
-		deny81NetValve.setPath("/probe/.*,/manager/.*");
-		deny81NetValve.setDeny("81\\..*");
+		denyLocalhostValve.setNext(invokedValve);
+		denyLocalhostValve.setPath("/probe/.*,/manager/.*");
+		denyLocalhostValve.setDeny("127\\.0\\.0\\.1");
 		
 		req = mock(Request.class);
 		resp = mock(Response.class);
 	}
 
 	@Test
-	public void blockAccessWhenIpStartsWith81OnBlockedPath() throws Exception {
-		doRequest("/manager/index.html", "81.0.2.6");
+	public void blockAccessFromLocalhostOnBlockedPath() throws Exception {
+		doRequest("/manager/index.html", "127.0.0.1", denyLocalhostValve);
 		
 		verify(resp).sendError(404);
-		assertFalse("Should not allow access on /manager from 81.0...", invokedValve.wasInvoked());
+		assertFalse("Should not allow access on /manager from 127.0.0.1", invokedValve.wasInvoked());
 	}
 	
 	@Test
-	public void allowAccessWhenIpStartsWith81OnNonBlockedPath() throws Exception {
-		doRequest("/", "81.0.2.6");
+	public void allowAccessFromLocalhostOnNonBlockedPathWhenLocalhostIsBlocked() throws Exception {
+		doRequest("/", "127.0.0.1", denyLocalhostValve);
 		
-		assertTrue("Should not block access on nonblocked path.", invokedValve.wasInvoked());
+		assertTrue("Should not block access on nonblocked path even though ip is set to block.", invokedValve.wasInvoked());
 	}
 	
 	@Test
 	public void allowAccessFromLocalhostOnBlockedPath() throws Exception {	
-		doRequest("/manager/test", "127.0.0.1");
+		doRequest("/manager/test", "127.0.0.1", allowLocalhostValve);
 		assertTrue("Should not have blocked the request.", invokedValve.wasInvoked());
 	}
 	
 	@Test
 	public void allowAccessFromLocalhostOnNonBlockedPath() throws Exception {
-		doRequest("/", "127.0.0.1");
+		doRequest("/", "127.0.0.1", allowLocalhostValve);
 		assertTrue("Should allow access on / when ip is 127.0.0.1.", invokedValve.wasInvoked());
 	}
 	
 	@Test
 	public void blockAccessFromNonLocalhostIpOnBlockedPath() throws Exception {
-		doRequest("/probe/", "81.5.23.0");
+		doRequest("/probe/", "81.5.23.0", allowLocalhostValve);
 		
 		verify(resp).sendError(404);
 		assertFalse("Should block access on /probe/ when ip is not 127.0.0.1.", invokedValve.wasInvoked());
@@ -95,15 +96,15 @@ public class BlockAccessByPathValveTest {
 	
 	@Test
 	public void allowAccessFromNonLocalhostIpOnNonBlockedPath() throws Exception{
-		doRequest("/demo", "81.5.23.0");
+		doRequest("/demo", "81.5.23.0", allowLocalhostValve);
 		assertTrue("Should allow access on /demo/", invokedValve.wasInvoked());
 	}
 	
-	private void doRequest(String path, String remoteAddr) throws Exception {
+	private void doRequest(String path, String remoteAddr, Valve valveToTestWith) throws Exception {
 		when(req.getRemoteAddr()).thenReturn(remoteAddr);
 		when(req.getRequestURI()).thenReturn(path);
 		
-		allowLocalhostValve.invoke(req, resp);
+		valveToTestWith.invoke(req, resp);
 	}
 	
 	
