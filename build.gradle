@@ -1,11 +1,10 @@
 usePlugin 'java'
-
 usePlugin 'eclipse'
 
 sourceCompatibility = 1.5
 version = '1.0'
 manifest.mainAttributes(
-    'Implementation-Title': 'Tomcat Valve to Block Access By Path',
+    'Implementation-Title': 'Custom Tomcat Valves',
     'Implementation-Version': version
 )
 
