@@ -1,18 +1,28 @@
-Custom Tomcat Valves for Tomcat 6
+Aggregated Access Log
 
 :: Description
-Custom Tomcat 6 valves. Version 1.0 contains a valve to block access for one or
-several paths using comma separated regular expressions for path, allowed ip and
-denied ip. 
+Custom Tomcat valve that aggregates access counts and data transfer by virtual host. The aggregated
+values are published as mbeans.
 
 Example:
-<Valve className="se.qbranch.tomcat.valve.BlockAccessByPathValve" path="/manager/.*" allow="127\.0\.0\.1"/>
+<Valve className="com.viskan.tomcat.valve.AggregatedAccessLogValve" />
 
 :: Preqs
-Uses gradle 0.8 or maven to build and test.
-Download gradle from http://gradle.org/
+Maven to build and test.
 
-:: Gradle Build Targets
-Build: gradle build
-Test: gradle test
-Generate eclipse project: gradle eclipse
+:: Thanks
+The initial code was based on the code for
+https://github.com/xlson/tomcat-valves by Leonard Axelsson, https://github.com/xlson
+
+:: License
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
