@@ -42,10 +42,11 @@ class LogAggregate implements LogAggregateMBean
 		{
 			name = new ObjectName("com.viskan.tomcat.valve:type=LogAggregate,name=" + host);
 			mbs.registerMBean(this, name);
+
 		}
 		catch (Exception e)
 		{
-			log.error("Unable to register mbean for " + host);
+			log.error("Unable to register mbean for " + host + " (" + e.getMessage() + ")", e);
 		}
 	}
 
@@ -68,4 +69,14 @@ class LogAggregate implements LogAggregateMBean
 	{
 		return accessCount.get();
 	}
+
+	@Override
+	public void reset()
+	{
+		accessCount.set(0);
+		totalBytes.set(0);
+	}
+
+
+
 }

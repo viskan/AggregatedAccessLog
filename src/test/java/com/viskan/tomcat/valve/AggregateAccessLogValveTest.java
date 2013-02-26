@@ -68,6 +68,21 @@ public class AggregateAccessLogValveTest {
 		assertEquals("Expected 10 + " + AggregateAccessLogValve.HEADER_SIZE + " bytes transferred", 10 + AggregateAccessLogValve.HEADER_SIZE, logValve.aggregations.get("another").getTotalBytes());
 	}
 
+	@Test
+	public void test_values_are_reset_ny_resets_values() throws Exception {
+		doRequest("test", 100, logValve);
+		doRequest("another", 10, logValve);
+		doRequest("test", 1000, logValve);
+		doRequest("test", 10000, logValve);
+
+		logValve.aggregations.get("test").reset();
+		assertEquals("Expected 0", 0, logValve.aggregations.get("test").getTotalBytes());
+		assertEquals("Expected 0", 0, logValve.aggregations.get("test").getAccessCount());
+		assertEquals("Expected 10 + " + AggregateAccessLogValve.HEADER_SIZE + " bytes transferred", 10 + AggregateAccessLogValve.HEADER_SIZE, logValve.aggregations.get("another").getTotalBytes());
+	}
+
+
+
 
 	private void doRequest(String host, long size, Valve valveToTestWith) throws Exception {
 		when(resp.getContentCountLong()).thenReturn(size);

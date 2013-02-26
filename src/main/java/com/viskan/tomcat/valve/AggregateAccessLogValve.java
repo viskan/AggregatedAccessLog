@@ -17,10 +17,9 @@
 package com.viskan.tomcat.valve;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 
@@ -48,7 +47,7 @@ public final class AggregateAccessLogValve extends ValveBase
 
 	static final long HEADER_SIZE = 500;
 
-	Map<String, LogAggregate> aggregations = new HashMap<String, LogAggregate>();
+	final Map<String, LogAggregate> aggregations = new ConcurrentHashMap<String, LogAggregate>();
 
 	public AggregateAccessLogValve()
 	{
@@ -63,15 +62,11 @@ public final class AggregateAccessLogValve extends ValveBase
 	{
 		super.backgroundProcess();
 
-		Iterator<Entry<String, LogAggregate>> it = aggregations.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<String, LogAggregate> e : aggregations.entrySet())
 		{
-			Map.Entry<String, LogAggregate> pairs = (Map.Entry<String, LogAggregate>) it.next();
-
-			LogAggregate aggregate = pairs.getValue();
-			log.info(pairs.getKey() + ": " + aggregate.getAccessCount() + ", " + aggregate.getTotalBytes());
+			LogAggregate aggregate = e.getValue();
+			log.info(e.getKey() + ": " + aggregate.getAccessCount() + ", " + aggregate.getTotalBytes());
 		}
-
 	}
 
 	/**
@@ -109,9 +104,6 @@ public final class AggregateAccessLogValve extends ValveBase
 
 		aggregate.addBytes(response.getContentCountLong() + HEADER_SIZE);
 		aggregate.incrementAccessCount();
-
-		aggregations.put(host, aggregate);
-
 	}
 
 	private LogAggregate getAggregate(String host)
@@ -126,6 +118,7 @@ public final class AggregateAccessLogValve extends ValveBase
 				if (aggregate == null)
 				{
 					aggregate = new LogAggregate(host);
+					aggregations.put(host, aggregate);
 				}
 			}
 		}

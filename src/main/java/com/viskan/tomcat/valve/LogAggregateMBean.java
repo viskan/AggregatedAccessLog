@@ -19,6 +19,23 @@ package com.viskan.tomcat.valve;
 public interface LogAggregateMBean
 {
 
+	/**
+	 *
+	 * @return Total number of bytes since startup or last reset
+	 * <br />
+	 * Header size is estimated
+	 */
 	long getTotalBytes();
+
+	/**
+	 *
+	 * @return Total number of accesses since startup or last reset
+	 */
 	int getAccessCount();
+
+	/**
+	 * Resets recorded values to 0
+	 */
+	public void reset();
+
 }
