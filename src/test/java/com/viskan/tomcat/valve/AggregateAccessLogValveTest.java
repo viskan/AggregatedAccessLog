@@ -28,6 +28,12 @@ import org.apache.catalina.connector.Response;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests for AggregateAccessLogValve
+ *
+ * @author Linus Brimstedt
+ *
+ */
 public class AggregateAccessLogValveTest {
 
 	private AggregateAccessLogValve logValve;

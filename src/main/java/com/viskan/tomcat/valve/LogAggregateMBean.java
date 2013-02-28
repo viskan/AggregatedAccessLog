@@ -16,6 +16,11 @@
  */
 package com.viskan.tomcat.valve;
 
+/**
+ * MBean interface for {@link LogAggregate}
+ * @author Linus Brimstedt
+ *
+ */
 public interface LogAggregateMBean
 {
 

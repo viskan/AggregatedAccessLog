@@ -26,6 +26,16 @@ import javax.management.ObjectName;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
+/**
+ * Aggregation for one host.
+ * <br/>
+ * Stores aggregated number of accesses and bytes transferred.
+ * <br />
+ * The values are published as MBeans and periodically logged to Tomcat log.
+ *
+ * @author Linus Brimstedt
+ *
+ */
 class LogAggregate implements LogAggregateMBean
 {
     private static Log log = LogFactory.getLog(LogAggregate.class);
