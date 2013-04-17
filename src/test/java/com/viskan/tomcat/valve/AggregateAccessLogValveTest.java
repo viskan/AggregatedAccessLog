@@ -91,7 +91,7 @@ public class AggregateAccessLogValveTest {
 
 
 	private void doRequest(String host, long size, Valve valveToTestWith) throws Exception {
-		when(resp.getContentCountLong()).thenReturn(size);
+		when(resp.getBytesWritten(false)).thenReturn(size);
 		when(context.getParent()).thenReturn(container);
 		when(container.getName()).thenReturn(host);
 		when(req.getContext()).thenReturn(context);

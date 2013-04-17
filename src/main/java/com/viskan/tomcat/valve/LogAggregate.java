@@ -52,7 +52,6 @@ class LogAggregate implements LogAggregateMBean
 		{
 			name = new ObjectName("com.viskan.tomcat.valve:type=LogAggregate,name=" + host);
 			mbs.registerMBean(this, name);
-
 		}
 		catch (Exception e)
 		{

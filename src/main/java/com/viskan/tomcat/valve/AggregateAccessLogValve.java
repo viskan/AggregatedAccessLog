@@ -49,6 +49,8 @@ public final class AggregateAccessLogValve extends ValveBase
 
 	final Map<String, LogAggregate> aggregations = new ConcurrentHashMap<String, LogAggregate>();
 
+	private long lastLogTime;
+
 	public AggregateAccessLogValve()
 	{
 		log.info(this.getClass().getSimpleName() + " enabled");
@@ -62,6 +64,18 @@ public final class AggregateAccessLogValve extends ValveBase
 	{
 		super.backgroundProcess();
 
+		// Only log once every ten minutes
+		long currentTimeMillis = System.currentTimeMillis();
+		if(currentTimeMillis - lastLogTime < 10 * 60 * 1000)
+		{
+			return;
+		}
+		lastLogTime = currentTimeMillis;
+		logCurrentValues();
+	}
+
+	private void logCurrentValues()
+	{
 		for (Entry<String, LogAggregate> e : aggregations.entrySet())
 		{
 			LogAggregate aggregate = e.getValue();
@@ -102,7 +116,7 @@ public final class AggregateAccessLogValve extends ValveBase
 		String host = getHost(request);
 		LogAggregate aggregate = getAggregate(host);
 
-		aggregate.addBytes(response.getContentCountLong() + HEADER_SIZE);
+		aggregate.addBytes(response.getBytesWritten(false) + HEADER_SIZE);
 		aggregate.incrementAccessCount();
 	}
 
